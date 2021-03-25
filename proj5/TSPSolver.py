@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from which_pyqt import PYQT_VER
+from math import inf
 if PYQT_VER == 'PYQT5':
 	from PyQt5.QtCore import QLineF, QPointF
 elif PYQT_VER == 'PYQT4':
@@ -82,7 +83,49 @@ class TSPSolver:
 	'''
 
 	def greedy( self,time_allowance=60.0 ):
-		pass
+		start = time.time()
+		print('hello')
+		retry = True
+		count = 0
+		while retry:
+			retry = False
+			count += 1
+			start_city = self._scenario.getCities()[random.randint(0, len(self._scenario.getCities())-1)]
+			visited = [start_city]
+			curr_city = start_city
+			sum = 0
+			# pick starting node (random)
+			while len(visited) < len(self._scenario.getCities()):
+				shortest = inf
+				for city in self._scenario.getCities():
+					if city not in visited:
+						curr_dist = curr_city.costTo(city)
+						if curr_dist < shortest:
+							shortest = curr_dist
+							next_city = city
+				if shortest == inf:
+					retry = True
+					break
+				visited.append(next_city)
+				sum += shortest
+				curr_city = next_city
+			final_dist = visited[-1].costTo(start_city)
+			if final_dist != inf:
+				# visited.append(start_city)
+				sum += final_dist
+			else:
+				retry = True
+		end = time.time()
+		bssf = TSPSolution(visited)
+		results = {}
+		results['cost'] = bssf.cost
+		results['time'] = end - start
+		results['count'] = count
+		results['soln'] = bssf
+		results['max'] = None
+		results['total'] = None
+		results['pruned'] = None
+		return results
 	
 	
 	
